@@ -4,7 +4,9 @@
 2. run ```npm install``` to install node dependencies
 3. Start local [MongoDB]
 4. Provide MongoDB credentials in environment variables file '.env' ( Do not commit .env file ) 
-5. Run ```grunt build-all``` to compile sass and write concatenated css and javascript to dist directory ( Not Yet Implemented)
+5. Run ```grunt build-all``` to compile sass and write concatenated css and javascript to dist directory
+6. Run ```npm run start``` to start application
+7. Point browser at localhost:3000
 
 
 ### Grunt Task Runner Instructions
@@ -22,6 +24,13 @@ sass -v         --> outputs Sass 3.5.2
 ```
 grunt build-css
 ```
+
+##### Concat JS, Babelize, and Uglify
+1. Concats js vendor files and angular application files
+2. Babelizes, compiling es6 -> es5
+3. Uglifies/minifies the concated/babelized file and writes output to public/dist/main.min.js 
+
+Note - Uglify is temporarily disabled. Need to find work around that will prevent uglify from breaking Angular app.
 
 
 [MongoDB]: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
