@@ -165,32 +165,30 @@ router.post('/updatepassword', function (req, res) {
  * Validates login info and creates session
  */
 router.post('/authenticate', function (req, res) {
+  console.log('\nAuthenticate', req.body);
   var username = req.body.username.toLowerCase();
   User.findOne({
     username: username
-  }).select('email username password active').exec(function (err, user) {
+  }).select('username name email password').exec(function (err, user) {
     if (err) throw err;
-    if (!user) { // bad username provided
+    // if no username found
+    if (!user) {
       res.json({
         success: false,
-        message: 'Invalid username, please try again'
+        message: 'Invalid username'
       });
-    } else if (user) { // username is valid
-
-      if (req.body.password) { // password is not empty
+      // if username is valid
+    } else if (user) {
+      // if password is not empty
+      if (req.body.password) {
         var validPassword = user.comparePassword(req.body.password);
         if (!validPassword) { // password does not match
           res.json({
             success: false,
-            message: 'Could not validate password, please try again'
-          });
-        } else if (!user.active) {
-          res.json({
-            success: false,
-            message: 'Account is not yet activated. Please check email for activation link.',
-            expired: true
+            message: 'Invalid password'
           });
         } else {
+          // else username/password valid, gen token
           var token = jwt.sign({
               username: user.username,
               email: user.email
@@ -200,10 +198,11 @@ router.post('/authenticate', function (req, res) {
             });
           res.json({
             success: true,
-            message: 'User Authenticated',
+            message: 'User authenticated',
             token: token
           });
         }
+        // else no password was provided
       } else {
         res.json({
           success: false,

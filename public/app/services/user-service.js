@@ -6,9 +6,14 @@ angular.module('app.service.user', [])
       return $http.post('/api/user', formData);
     }
 
+    function authenticateUser(formData) {
+      return $http.post('/api/authenticate', formData);
+    }
+
 
     return {
-      registerUser
+      registerUser,
+      authenticateUser
     }
 
   }]);
