@@ -3,32 +3,32 @@ var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.contro
 
 app.config(function ($routeProvider, $locationProvider) {
 
-  // define routeProvider routes
-  $routeProvider
+	// define routeProvider routes
+	$routeProvider
 
-    // Home Route    
-    .when('/', {
-      templateUrl: 'app/views/templates/home.html'
-    })
+		// Home Route    
+		.when('/', {
+			templateUrl: 'app/views/templates/home.html'
+		})
 
-    // Login Route
-    .when('/login', {
-      templateUrl: 'app/views/templates/login.html'
-    })
+		// Login Route
+		.when('/login', {
+			templateUrl: 'app/views/templates/login.html'
+		})
 
-    .when('/register', {
-      templateUrl: 'app/views/templates/register.html',
-      controller: 'RegistrationController'
-    })
+		.when('/register', {
+			templateUrl: 'app/views/templates/register.html',
+			controller: 'RegistrationController'
+		})
 
-    // If no match then redirect to Home Route          
-    .otherwise({
-      redirectTo: '/'
-    });
+		// If no match then redirect to Home Route          
+		.otherwise({
+			redirectTo: '/'
+		});
 
-  // Required for no base (remove '#' from address bar)
-  $locationProvider.html5Mode({
-    enabled: true,
-    requireBase: false
-  });
+	// Required for no base (remove '#' from address bar)
+	$locationProvider.html5Mode({
+		enabled: true,
+		requireBase: false
+	});
 })
