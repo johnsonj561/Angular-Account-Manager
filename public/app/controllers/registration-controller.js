@@ -1,6 +1,7 @@
 angular.module('app.controller.registration', ['app.service.user'])
 
-  .controller('RegistrationController', ['$scope', '$location', 'UserService', function ($scope, $location, UserService) {
+  .controller('RegistrationController', ['$scope', '$location', '$timeout', 'UserService', function ($scope, $location, $timeout, UserService) {
+
 
     console.log('Registration Controller Init');
 
@@ -13,6 +14,7 @@ angular.module('app.controller.registration', ['app.service.user'])
     $scope.registerUser = function (formData) {
       UserService.registerUser(formData)
         .then(resp => {
+          console.log(resp);
           $scope.formData.error = $scope.formData.success = false;
           if (resp.data.success) {
             // ON SUCCESS - display success mssg and redirect to home page
@@ -23,6 +25,7 @@ angular.module('app.controller.registration', ['app.service.user'])
           }
         })
         .catch(err => {
+          console.log(err);
           $scope.formData.success = false;
           $scope.formData.error = 'There was an error registering your account';
         });

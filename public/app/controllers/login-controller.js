@@ -1,6 +1,6 @@
 angular.module('app.controller.login', ['app.service.auth'])
 
-  .controller('LoginController', ['$scope', '$location', 'AuthService', function ($scope, $location, AuthService) {
+  .controller('LoginController', ['$scope', '$location', '$timeout', 'AuthService', function ($scope, $location, $timeout, AuthService) {
 
     console.log('Login Controller Init');
 
@@ -19,6 +19,7 @@ angular.module('app.controller.login', ['app.service.auth'])
           if (resp.data.success) {
             // ON SUCCESS - display success mssg and redirect to home page
             $scope.formData.success = resp.data.message;
+            $timeout(() => $location.path('/'), 2000);
           } else {
             $scope.formData.error = resp.data.message;
           }
@@ -29,4 +30,5 @@ angular.module('app.controller.login', ['app.service.auth'])
           $scope.formData.error = 'There was an error logging in';
         });
     }
+
   }]);
