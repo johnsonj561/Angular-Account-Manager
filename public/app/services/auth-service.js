@@ -1,5 +1,11 @@
 angular.module('app.service.auth', [])
+
+  /**
+   * Authorization Service
+   * Provides various user authorization utilities
+   */
   .factory('AuthService', ['$http', 'AuthToken', function ($http, AuthToken) {
+
     function login(loginData) {
       return $http.post('/api/authenticate', loginData).then(function (data) {
         AuthToken.setToken(data.data.token);
@@ -23,6 +29,7 @@ angular.module('app.service.auth', [])
 
     function logout() {
       AuthToken.setToken();
+      console.log('Logging out...');
     }
 
     return {
@@ -31,6 +38,11 @@ angular.module('app.service.auth', [])
       logout
     }
   }])
+
+  /**
+   * Authorization Token getter/setter
+   * Stores token in browser's local storage
+   */
   .factory('AuthToken', ['$window', function ($window) {
 
     function setToken(token) {
@@ -50,6 +62,11 @@ angular.module('app.service.auth', [])
       getToken
     }
   }])
+
+  /**
+   * Authorization Interceptors
+   * On request, store token in headers[x-access-token]
+   */
   .factory('AuthInterceptors', ['AuthToken', function (AuthToken) {
 
     function request(config) {
