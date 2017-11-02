@@ -8,9 +8,6 @@ module.exports = function (grunt) {
     // Write css output to styles/css
     sass: {
       dist: {
-        options: {
-          sourcemap: 'none'
-        },
         files: [{
           expand: true,
           cwd: 'public/styles/sass',
@@ -20,35 +17,39 @@ module.exports = function (grunt) {
       }]
       }
     },
+    // Concat and minify all css
+    cssmin: {
+      combine: {
+        files: { // explicitly define bootstrap to be concated 1st
+          'public/dist/main.min.css': ['public/styles/css/bootstrap.css', 'public/dist/temp/css/*css']
+        }
+      }
+    },
     // Concat all js into single file
     // Be sure to order dependencies appropriately
     // Note - If jquery is not loaded before angular, angular will utilize jquery-lite
     concat: {
       options: {
         separator: ';',
+        sourceMap: true
       },
       dist: {
         src: [
 					 'public/js/jquery/*js',
-					 'public/js/angular/*js',
-					 'public/js/bootstrap/*js',
+           'public/js/angular/angular.js',
+           'public/js/angular/angular-route.js',
+           'public/js/bootstrap/bootstrap.js',
 					 'public/app/**/*js'
 				 ],
-        dest: 'public/dist/temp/js/main.js',
-      }
-    },
-    // Concat and minify all css
-    cssmin: {
-      combine: {
-        files: { // explicitly define bootstrap to be concated 1st
-          'public/dist/main.min.css': ['public/styles/css/bootstrap.min.css', 'public/dist/temp/css/*css']
-        }
+        dest: 'public/dist/temp/js/main.js'
       }
     },
     // Babelize compiles javascript ES6 --> ES5 per preset plugins
     babel: {
       options: {
-        presets: ['babel-preset-es2015']
+        presets: ['babel-preset-es2015'],
+        sourceMap: true,
+        inputSourceMap: grunt.file.readJSON('public/dist/temp/js/main.js.map')
       },
       dist: {
         files: [{
@@ -63,7 +64,10 @@ module.exports = function (grunt) {
     // Uglify/minify javascript
     uglify: {
       options: {
-        mangle: false
+        mangle: false,
+        sourceMap: true,
+        sourceMapIncludeSources: true,
+        sourceMapIn: 'public/dist/temp/js/main.babelized.js.map'
       },
       build: {
         src: 'public/dist/temp/js/main.babelized.js',
@@ -72,9 +76,9 @@ module.exports = function (grunt) {
     },
     // Clean temp working directories
     clean: {
-      all: ['public/dist/temp'],
-      js: ['public/dist/temp/js'],
-      css: ['public/dist/temp/css']
+      all: ['public/dist'],
+      js: ['public/dist/**/*js'],
+      css: ['public/dist/**/*css']
     },
     // watch files for changes and re-build on change
     watch: {
@@ -103,10 +107,10 @@ module.exports = function (grunt) {
   // watch service will re-build javascript and css on file change
   grunt.registerTask('default', ['watch']);
   // grunt build-css compiles sass then concats all css to public/dist/main.min.css
-  grunt.registerTask('build-css', ['sass', 'cssmin', 'clean:css']);
+  grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin']);
   // grunt build-js concats all js, babelizes, uglifies, and writes result to public/dist/main.min.js
   // Note - uglification currently disabled, need to find workaround to prevent uglify from breaking angular
-  grunt.registerTask('build-js', ['concat', 'babel', 'uglify', 'clean:js']);
+  grunt.registerTask('build-js', ['clean:js', 'concat', 'babel', 'uglify']);
   // grunt build-all combines build-css and build-js
-  grunt.registerTask('build-all', ['build-css', 'build-js', 'clean:all']);
+  grunt.registerTask('build-all', ['clean:all', 'build-css', 'build-js']);
 };
