@@ -6,14 +6,23 @@ angular.module('app.service.user', [])
       return $http.post('/api/user', formData);
     }
 
-    function authenticateUser(formData) {
-      return $http.post('/api/authenticate', formData);
+    function getMyProfile() {
+      return $http.get('/api/profile');
     }
 
+    function getSession() {
+      return $http.get('/api/session');
+    }
+
+    function updateProfile(formData) {
+      return $http.post('/api/updateprofile', formData);
+    }
 
     return {
       registerUser,
-      authenticateUser
+      getMyProfile,
+      getSession,
+      updateProfile
     }
 
   }]);

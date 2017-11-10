@@ -19,6 +19,7 @@ angular.module('app.controller.login', ['app.service.auth'])
           if (resp.data.success) {
             // ON SUCCESS - display success mssg and redirect to home page
             $scope.formData.success = resp.data.message;
+            $scope.$emit('run:checkSession');
             $timeout(() => $location.path('/'), 2000);
           } else {
             $scope.formData.error = resp.data.message;

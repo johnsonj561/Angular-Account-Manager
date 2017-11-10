@@ -27,5 +27,7 @@ nav.navbar {
 
 .home-panel-container {
   margin-top: 50px; }
+  .home-panel-container .panel-body .btn-sm {
+    width: 100px; }
 
 /*# sourceMappingURL=main.css.map */

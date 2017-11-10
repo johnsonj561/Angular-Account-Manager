@@ -99,10 +99,10 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
+
   /**
    * Register Grunt Tasks
    */
-
   // default grunt command 'grunt' will start watch service
   // watch service will re-build javascript and css on file change
   grunt.registerTask('default', ['watch']);

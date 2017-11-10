@@ -48026,9 +48026,60 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
 }]);
 ;angular.module('app.controller.edit-profile', [])
 
-  .controller('EditProfileController', [function () {
+  .controller('EditProfileController', ['$scope', 'UserService', function ($scope, UserService) {
 
-    console.log('Edit Profile Controller Init');
+    $scope.formData = {};
+
+    UserService.getSession()
+      .then(resp => {
+        console.log(resp);
+        if (resp.data.username) {
+          loadProfile(resp.data.username);
+        } else {
+          console.log('Unable to get session details');
+        }
+      })
+      .catch(err => {
+        console.log('Unable to get session details');
+      });
+
+
+
+    function loadProfile(username) {
+      UserService.getMyProfile(username)
+        .then(resp => {
+          console.log('loadProfile resp: ', resp.data);
+          $scope.formData = resp.data.data;
+        })
+        .catch(err => {
+          console.log('Unable to load profile');
+        });
+    }
+
+
+    $scope.updateProfile = function () {
+      $scope.formData.error = $scope.formData.success = false;
+      $scope.disableSubmit = true;
+      if (!$scope.formData.name || !$scope.formData.email || !$scope.formData.username) {
+        return $scope.formData.error = 'Do not leave any fields blank'
+      } else {
+        UserService.updateProfile($scope.formData)
+          .then(resp => {
+            if (resp.data.success) {
+              console.log('Profile Updated', resp);
+              $scope.formData.success = resp.data.message;
+            } else {
+              console.log('Unable to update profile', resp)
+              $scope.formData.error = resp.data.message;
+            }
+          }).catch(err => {
+            console.log('Unknown error:', err);
+            $scope.formData.error = 'Unknown error, unable to update profile';
+          }).finally(() => {
+            $scope.disableSubmit = false
+          });
+      }
+    }
 
   }]);
 ;angular.module('app.controller.login', ['app.service.auth'])
@@ -48052,6 +48103,7 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
           if (resp.data.success) {
             // ON SUCCESS - display success mssg and redirect to home page
             $scope.formData.success = resp.data.message;
+            $scope.$emit('run:checkSession');
             $timeout(() => $location.path('/'), 2000);
           } else {
             $scope.formData.error = resp.data.message;
@@ -48066,77 +48118,96 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
 
   }]);
 ;angular.module('app.controller.main', ['app.service.auth'])
-  .controller('MainController', ['$scope', 'AuthService', '$interval', '$location', '$window', function ($scope, AuthService, $interval, $location, $window) {
+  .controller('MainController', ['$rootScope', '$scope', 'AuthService', 'UserService', 'SessionService', '$interval', '$location', '$window', function ($rootScope, $scope, AuthService, UserService, SessionService, $interval, $location, $window) {
 
     console.log('Main controller init');
 
     // warn user when app has 60 seconds remaining
     const SESSION_EXPIRE_WARNING_TIME = 60;
     // check session every 30 seconds
-    const CHECK_SESSION_INTERVAL = 1000 * 30;
+    const CHECK_SESSION_INTERVAL = 1000 * 10;
 
-    let checkingSession = false;
 
     $scope.logoutUser = function () {
       AuthService.logout();
       $location.path('/');
     }
 
-    /*
-     * Check Session
-     * If logged in, recurring interval set to check for valid token
-     * When token is near expiration, use will be promted to renew token
-     */
+
     function checkSession() {
-      console.log('Running checksession()');
-      if (AuthService.isLoggedIn()) {
-        console.log('AuthService.isLoggedIn');
-
-        checkingSession = true;
-
-        // create re-occuring interval that checks token expiration time
-        var interval = $interval(function () {
-          var token = $window.localStorage.getItem('token');
-          if (token === null) {
-            console.log('token === null, cancelling interval');
-            $interval.cancel(interval);
+      let activeSession = SessionService.isSessionValid();
+      console.log('isSessionValid() = ', activeSession);
+      if (activeSession) {
+        let sessionInterval = $interval(() => {
+          console.log('Running sessionInterval');
+          activeSession = SessionService.isSessionValid();
+          if (!activeSession) {
+            console.log('Session is no longer active');
+            $interval.cancel(sessionInterval);
+            if (AuthService.isLoggedIn()) {
+              AuthService.logout();
+            }
+            console.log('Redirecting to home page ');
+$location.path('/');
           } else {
-            console.log('token not null, parsing jwt');
-
-            self.parseJwt = function (token) {
-              const base64Url = token.split('.')[1];
-              const base64 = base64Url.replace('.', '+').replace('_', '/');
-              return JSON.parse($window.atob(base64));
-            }
-
-            // get the expiration time from token (initialized to 1 hour)
-            const expireTime = self.parseJwt(token);
-
-            // get current time stamp
-            const timeStamp = Math.floor(Date.now() / 1000);
-
-            // calc time til expiration = expiration time - current time
-            const timeLeft = expireTime.exp - timeStamp;
-
-            if (timeLeft < 0) {
-              console.log('jwt time expired, logging out');
-              Auth.logout();
-              app.checkingSession = false;
-              app.isLoggedIn = false;
-              $location.path('/');
-            } else if (timeLeft <= SESSION_EXPIRE_WARNING_TIME) {
-              console.log('timeLeft is less than warning time, warning user now');
-              $interval.cancel(interval);
-            }
+            console.log('Session is valid!');
           }
         }, CHECK_SESSION_INTERVAL);
       }
-    };
+    }
 
 
     checkSession();
 
 
+    $rootScope.$on('run:checkSession', function () {
+      checkSession();
+    });
+
+  }])
+
+  .service('SessionService', ['AuthService', '$window', function (AuthService, $window) {
+
+    /**
+     * Returns parsed jwt
+     */
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace('.', '+').replace('_', '/');
+      return JSON.parse($window.atob(base64));
+    }
+
+
+    /**
+     * Returns true if user is logged in and session is valid
+     */
+    function isSessionValid() {
+      console.log('SessionService.isSessionValid');
+      if (AuthService.isLoggedIn()) {
+        console.log('AuthService.isLoggedIn');
+        //        checkingSession = true;
+        // get session token from browser storage then parse token
+        var token = $window.localStorage.getItem('token');
+        if (token === null) {
+          console.log('token === null, cancelling interval');
+          return false;
+          //          $interval.cancel(interval);
+        } else {
+          console.log('token not null, parsing jwt');
+          const expireTime = parseJwt(token);
+          const timeStamp = Math.floor(Date.now() / 1000);
+          const timeLeft = expireTime.exp - timeStamp;
+          if (timeLeft <= 0) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+
+    return {
+      isSessionValid
+    }
 }]);
 ;angular.module('app.controller.registration', ['app.service.user'])
 
@@ -48264,14 +48335,23 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
       return $http.post('/api/user', formData);
     }
 
-    function authenticateUser(formData) {
-      return $http.post('/api/authenticate', formData);
+    function getMyProfile() {
+      return $http.get('/api/profile');
     }
 
+    function getSession() {
+      return $http.get('/api/session');
+    }
+
+    function updateProfile(formData) {
+      return $http.post('/api/updateprofile', formData);
+    }
 
     return {
       registerUser,
-      authenticateUser
+      getMyProfile,
+      getSession,
+      updateProfile
     }
 
   }]);
