@@ -21,19 +21,25 @@ ruby -v         --> ruby 2.4.2p198
 sass -v         --> outputs Sass 3.5.2
 ```
 
-##### Compiling Sass, Concat CSS, and Minify CSS
-1. Compiless sass files from public/styles/sass/ and writes css output to public/styles/css/
-2. Concat css and minify to output file public/dist/main.min.css
+#### Grunt Commands
+1. Compile sass to css, minify all css and write result to public/dist/main.min.css
 ```
 grunt build-css
 ```
-
-##### Concat JS, Babelize, and Uglify
-1. Concats js vendor files and angular application files
-2. Babelizes, compiling es6 -> es5
-3. Uglifies/minifies the concated/babelized file and writes output to public/dist/main.min.js 
-
-Note - Uglify is temporarily disabled. Need to find work around that will prevent uglify from breaking Angular app.
+2. Concatenate javascript, babelize, and minify result to public/dist/main.min.js/main.min.js 
+```
+grunt build-js
+```
+3. Combine both 1 and 2 with Build All
+```
+grunt build-all
+```
+4. Watch javascript, sass, and css files for changes. On change, execute Build All
+```
+grunt watch
+// or
+grunt
+```
 
 
 [MongoDB]: https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/

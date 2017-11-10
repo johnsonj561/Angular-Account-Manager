@@ -5,7 +5,7 @@ var AccountModel = require('../models/account.js');
 var User = require('../models/user.js');
 
 // token 
-const TOKEN_EXPIRATION = '1h'
+const TOKEN_EXPIRATION = '10m'
 
 /*
  * Register New User
@@ -89,43 +89,7 @@ router.post('/user', function (req, res) {
 });
 
 
-/*
- * Update User Profile
- */
-router.post('/updateuser', function (req, res) {
-  var editUser = req.body._id;
-  // Look for user that needs to be editted
-  User.findOne({
-    _id: editUser
-  }, function (err, user) {
-    if (err) throw err; // Throw error if cannot connect
-    // Check if logged in user is in database
-    if (!user) {
-      res.json({
-        success: false,
-        message: 'No user found'
-      }); // Return error
-    } else {
-      // update user profile data
-      user.email = req.body.email;
-      user.name = req.body.name;
-      if (req.body.password) {
-        console.log('password provided');
-        user.password = req.body.password;
-      }
-      user.save(function (err) {
-        if (err) {
-          console.log(err); // Log error to console
-        } else {
-          res.json({
-            success: true,
-            message: 'Profile has been updated'
-          });
-        }
-      });
-    }
-  });
-});
+
 
 
 /*
@@ -165,32 +129,30 @@ router.post('/updatepassword', function (req, res) {
  * Validates login info and creates session
  */
 router.post('/authenticate', function (req, res) {
+  console.log('\nAuthenticate', req.body);
   var username = req.body.username.toLowerCase();
   User.findOne({
     username: username
-  }).select('email username password active').exec(function (err, user) {
+  }).select('username name email password').exec(function (err, user) {
     if (err) throw err;
-    if (!user) { // bad username provided
+    // if no username found
+    if (!user) {
       res.json({
         success: false,
-        message: 'Invalid username, please try again'
+        message: 'Invalid username'
       });
-    } else if (user) { // username is valid
-
-      if (req.body.password) { // password is not empty
+      // if username is valid
+    } else if (user) {
+      // if password is not empty
+      if (req.body.password) {
         var validPassword = user.comparePassword(req.body.password);
         if (!validPassword) { // password does not match
           res.json({
             success: false,
-            message: 'Could not validate password, please try again'
-          });
-        } else if (!user.active) {
-          res.json({
-            success: false,
-            message: 'Account is not yet activated. Please check email for activation link.',
-            expired: true
+            message: 'Invalid password'
           });
         } else {
+          // else username/password valid, gen token
           var token = jwt.sign({
               username: user.username,
               email: user.email
@@ -200,10 +162,11 @@ router.post('/authenticate', function (req, res) {
             });
           res.json({
             success: true,
-            message: 'User Authenticated',
+            message: 'User authenticated',
             token: token
           });
         }
+        // else no password was provided
       } else {
         res.json({
           success: false,
@@ -316,6 +279,126 @@ router.get('/account', function (req, res) {
       });
     });
 });
+
+
+/*
+ * MIDDLEWARE
+ * Checks for valid token before proceeding
+ */
+router.use(function (req, res, next) {
+  const token = req.body.token || req.body.query || req.headers['x-access-token'];
+  if (token) {
+    jwt.verify(token, process.env.SECRET, function (err, decoded) {
+      if (err) {
+        res.json({
+          success: false,
+          message: 'Invalid token, unable to verify'
+        });
+      } else {
+        console.log('Token validated');
+        req.decoded = decoded;
+        next();
+      }
+    });
+  } else {
+    res.json({
+      success: false,
+      message: 'Unable to proceed, no token provided'
+    });
+  }
+});
+
+
+/*
+ * Returns decoded request
+ */
+router.get('/session', function (req, res) {
+  res.send(req.decoded);
+});
+
+
+/**
+ * Update User Profile
+ */
+router.post('/updateprofile', function (req, res) {
+  const username = req.decoded.username;
+  // Look for user that needs to be editted
+  User.findOne({
+    username: username
+  }).then(user => {
+    if (!user) {
+      res.json({
+        success: false,
+        message: 'No user found'
+      });
+    } else {
+      user.email = req.body.email;
+      user.username = req.body.username;
+      user.name = req.body.name;
+      user.save().then(resp => {
+        res.json({
+          success: true,
+          message: 'Profile updated',
+          resp: resp
+        });
+      }).catch(err => {
+        res.json({
+          success: false,
+          message: 'Unable to update profile',
+          error: err
+        });
+      });
+    }
+  }).catch(err => {
+    res.json({
+      success: false,
+      message: 'Unable to update profile',
+      error: err
+    });
+  });
+});
+
+
+/**
+ * Return profile data for current user
+ * { username, name, email }
+ */
+router.get('/profile', function (req, res) {
+  const username = req.decoded.username;
+  if (username) {
+    User.findOne({
+        username: username
+      }, 'name username email')
+      .then(resp => {
+        if (resp) {
+          res.json({
+            success: true,
+            message: 'Profile returned',
+            data: resp
+          });
+        } else {
+          res.json({
+            success: false,
+            message: 'No username found'
+          });
+        }
+      }).catch(err => {
+        res.json({
+          success: false,
+          message: 'Error getting profile: ' + err
+        });
+      })
+  } else {
+    res.json({
+      success: false,
+      message: 'No username found'
+    });
+  }
+});
+
+
+
+
 
 
 module.exports = router;
