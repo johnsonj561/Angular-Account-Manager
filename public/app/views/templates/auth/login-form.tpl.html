@@ -1,0 +1,23 @@
+<form class="form-container">
+
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Userame</span>
+    <input type="text" class="form-control" ng-model="formData.username">
+  </div>
+
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Password</span>
+    <input type="password" class="form-control" ng-model="formData.password">
+  </div>
+
+  <div class="form-btn-container text-center">
+    <button type="button" class="btn btn-primary btn-sm" ng-click="authenticateUser(formData)">Login</button>
+  </div>
+
+</form>
+
+<!-- User Feedback -->
+<div class="alert-container">
+  <div class="alert alert-success text-center" ng-if="formData.success" ng-bind="formData.success"></div>
+  <div class="alert alert-danger text-center" ng-if="formData.error" ng-bind="formData.error"></div>
+</div>

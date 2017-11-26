@@ -1,0 +1,52 @@
+<form class="form-container">
+
+  <!-- Profile Input Fields -->
+  <div ng-if="registeringUser || editingUser">
+
+    <div class="input-group input-group-sm">
+      <span class="input-group-addon">Name</span>
+      <input type="text" class="form-control" ng-model="formData.name">
+    </div>
+
+    <div class="input-group input-group-sm">
+      <span class="input-group-addon">Email</span>
+      <input type="email" class="form-control" ng-model="formData.email">
+    </div>
+
+    <div class="input-group input-group-sm">
+      <span class="input-group-addon">Username</span>
+      <input type="text" class="form-control" ng-model="formData.username" ng-disabled="editingUser">
+    </div>
+
+  </div>
+
+  <!-- Password Input Fields -->
+  <div ng-if="registeringUser || editingPassword">
+
+    <div ng-if="registeringUser || editingPassword" class="input-group input-group-sm">
+      <span class="input-group-addon">Password</span>
+      <input type="password" class="form-control" ng-model="formData.password">
+    </div>
+
+    <div ng-if="registeringUser || editingPassword" class="input-group input-group-sm">
+      <span class="input-group-addon">Confirm Password</span>
+      <input type="password" class="form-control" ng-model="formData.passwordConfirmation">
+    </div>
+
+  </div>
+
+  <!-- Form Buttons -->
+  <div class="form-btn-container text-center">
+    <button class="btn btn-primary btn-sm" ng-click="submitForm(formData)" ng-disabled="disableSubmit">Submit</button>
+    <button ng-if="editingUser && !editingPassword" ng-click="togglePassword()" class="btn btn-primary btn-sm">Change Password</button>
+    <a href="/"><button class="btn btn-primary btn-sm">Cancel</button></a>
+  </div>
+
+</form>
+
+
+<!-- User Feedback -->
+<div class="alert-container">
+  <div class="alert alert-success text-center" ng-if="formData.success" ng-bind="formData.success"></div>
+  <div class="alert alert-danger text-center" ng-if="formData.error" ng-bind="formData.error"></div>
+</div>

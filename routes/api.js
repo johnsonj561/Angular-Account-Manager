@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 var AccountModel = require('../models/account.js');
 var User = require('../models/user.js');
 
-// token 
+// token
 const TOKEN_EXPIRATION = '10m'
 
 /*
@@ -12,6 +12,7 @@ const TOKEN_EXPIRATION = '10m'
  * Validates new user information and stores in mongodb
  */
 router.post('/user', function (req, res) {
+  console.log('\n', req.body);
   var user = new User();
   user.username = req.body.username.toLowerCase();
   user.password = req.body.password;
@@ -335,6 +336,18 @@ router.post('/updateprofile', function (req, res) {
       user.email = req.body.email;
       user.username = req.body.username;
       user.name = req.body.name;
+      // check for password update
+      if(req.body.password) {
+        if(req.body.passwordConfirmation === req.body.password) {
+          user.password = req.body.password;
+        } else {
+          res.json({
+            success: false,
+            message: 'Passwords do not match',
+          });
+          return;
+        }
+      }
       user.save().then(resp => {
         res.json({
           success: true,

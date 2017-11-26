@@ -8,17 +8,14 @@ nav.navbar {
   border: 2px solid #9d9d9d;
   border-radius: 10px;
   padding: 25px; }
-
-.form-container > .input-group {
-  width: 100%;
-  margin: 20px 0px; }
-
-.form-container > .input-group > .input-group-addon {
-  width: 125px; }
-
-.form-btn-container > .btn-sm {
-  width: 80%;
-  margin: auto 5px; }
+  .form-container .input-group {
+    width: 100%;
+    margin: 20px 0px; }
+    .form-container .input-group .input-group-addon {
+      width: 125px; }
+  .form-container .form-btn-container .btn-sm {
+    width: 80%;
+    margin: 5px auto; }
 
 .alert-container {
   margin: 20px auto;

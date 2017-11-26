@@ -110,7 +110,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin']);
   // grunt build-js concats all js, babelizes, uglifies, and writes result to public/dist/main.min.js
   // Note - uglification currently disabled, need to find workaround to prevent uglify from breaking angular
-  grunt.registerTask('build-js', ['clean:js', 'concat', 'babel', 'uglify']);
+  grunt.registerTask('build-js', ['concat', 'babel', 'uglify']);
   // grunt build-all combines build-css and build-js
   grunt.registerTask('build-all', ['clean:all', 'build-css', 'build-js']);
 };

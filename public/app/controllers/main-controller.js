@@ -29,7 +29,7 @@ angular.module('app.controller.main', ['app.service.auth'])
               AuthService.logout();
             }
             console.log('Redirecting to home page ');
-$location.path('/');
+            $location.path('/');
           } else {
             console.log('Session is valid!');
           }
@@ -37,9 +37,7 @@ $location.path('/');
       }
     }
 
-
     checkSession();
-
 
     $rootScope.$on('run:checkSession', function () {
       checkSession();

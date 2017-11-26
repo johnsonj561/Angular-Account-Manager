@@ -1,4 +1,5 @@
-var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.controller.registration', 'app.controller.login', 'app.controller.edit-profile', 'app.service.auth', 'app.service.user']);
+var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.service.auth', 'app.service.user',
+  'app.directives.auth.login', 'app.directives.menu.home', 'app.directives.user.edit', 'app.directives.user.register']);
 
 /**
  * Configure front end routes
@@ -10,31 +11,28 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
    */
   $routeProvider
 
-    // Home Route    
+    // Home Route
     .when('/', {
-      templateUrl: 'app/views/templates/home.html',
+      templateUrl: 'app/views/pages/home.html'
     })
 
     // Login Route
     .when('/login', {
-      templateUrl: 'app/views/templates/login.html',
-      controller: 'LoginController',
+      templateUrl: 'app/views/pages/login-user.html'
     })
 
     .when('/register', {
-      templateUrl: 'app/views/templates/register.html',
-      controller: 'RegistrationController'
+      templateUrl: 'app/views/pages/register-user.html'
     })
 
     // an example route that requires authentication
     // un-authenticated users should not be able to view edit profile page
     .when('/edit-profile', {
-      templateUrl: 'app/views/templates/edit-profile.html',
-      controller: 'EditProfileController',
+      templateUrl: 'app/views/pages/edit-user.html',
       authenticated: true
     })
 
-    // "catch all" to redirect to home page            
+    // "catch all" to redirect to home page
     .otherwise({
       redirectTo: '/'
     });

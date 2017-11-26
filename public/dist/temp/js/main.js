@@ -47950,7 +47950,8 @@ if (typeof jQuery === 'undefined') {
   })
 
 }(jQuery);
-;var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.controller.registration', 'app.controller.login', 'app.controller.edit-profile', 'app.service.auth', 'app.service.user']);
+;var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.service.auth', 'app.service.user',
+  'app.directives.auth.login', 'app.directives.menu.home', 'app.directives.user.edit', 'app.directives.user.register']);
 
 /**
  * Configure front end routes
@@ -47962,31 +47963,28 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
    */
   $routeProvider
 
-    // Home Route    
+    // Home Route
     .when('/', {
-      templateUrl: 'app/views/templates/home.html',
+      templateUrl: 'app/views/pages/home.html'
     })
 
     // Login Route
     .when('/login', {
-      templateUrl: 'app/views/templates/login.html',
-      controller: 'LoginController',
+      templateUrl: 'app/views/pages/login-user.html'
     })
 
     .when('/register', {
-      templateUrl: 'app/views/templates/register.html',
-      controller: 'RegistrationController'
+      templateUrl: 'app/views/pages/register-user.html'
     })
 
     // an example route that requires authentication
     // un-authenticated users should not be able to view edit profile page
     .when('/edit-profile', {
-      templateUrl: 'app/views/templates/edit-profile.html',
-      controller: 'EditProfileController',
+      templateUrl: 'app/views/pages/edit-user.html',
       authenticated: true
     })
 
-    // "catch all" to redirect to home page            
+    // "catch all" to redirect to home page
     .otherwise({
       redirectTo: '/'
     });
@@ -48024,99 +48022,6 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
     }
   })
 }]);
-;angular.module('app.controller.edit-profile', [])
-
-  .controller('EditProfileController', ['$scope', 'UserService', function ($scope, UserService) {
-
-    $scope.formData = {};
-
-    UserService.getSession()
-      .then(resp => {
-        console.log(resp);
-        if (resp.data.username) {
-          loadProfile(resp.data.username);
-        } else {
-          console.log('Unable to get session details');
-        }
-      })
-      .catch(err => {
-        console.log('Unable to get session details');
-      });
-
-
-
-    function loadProfile(username) {
-      UserService.getMyProfile(username)
-        .then(resp => {
-          console.log('loadProfile resp: ', resp.data);
-          $scope.formData = resp.data.data;
-        })
-        .catch(err => {
-          console.log('Unable to load profile');
-        });
-    }
-
-
-    $scope.updateProfile = function () {
-      $scope.formData.error = $scope.formData.success = false;
-      $scope.disableSubmit = true;
-      if (!$scope.formData.name || !$scope.formData.email || !$scope.formData.username) {
-        return $scope.formData.error = 'Do not leave any fields blank'
-      } else {
-        UserService.updateProfile($scope.formData)
-          .then(resp => {
-            if (resp.data.success) {
-              console.log('Profile Updated', resp);
-              $scope.formData.success = resp.data.message;
-            } else {
-              console.log('Unable to update profile', resp)
-              $scope.formData.error = resp.data.message;
-            }
-          }).catch(err => {
-            console.log('Unknown error:', err);
-            $scope.formData.error = 'Unknown error, unable to update profile';
-          }).finally(() => {
-            $scope.disableSubmit = false
-          });
-      }
-    }
-
-  }]);
-;angular.module('app.controller.login', ['app.service.auth'])
-
-  .controller('LoginController', ['$scope', '$location', '$timeout', 'AuthService', function ($scope, $location, $timeout, AuthService) {
-
-    console.log('Login Controller Init');
-
-    // on controller load - clear form data
-    $scope.formData = {};
-
-    /**
-     * Register new user
-     */
-    $scope.authenticateUser = function (formData) {
-      console.log('Authenticate user called', formData);
-      AuthService.login(formData)
-        .then(resp => {
-          console.log(resp);
-          $scope.formData.error = $scope.formData.success = false;
-          if (resp.data.success) {
-            // ON SUCCESS - display success mssg and redirect to home page
-            $scope.formData.success = resp.data.message;
-            $scope.$emit('run:checkSession');
-            $timeout(() => $location.path('/'), 2000);
-          } else {
-            $scope.formData.error = resp.data.message;
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          $scope.formData.success = false;
-          $scope.formData.error = 'There was an error logging in';
-        });
-    }
-
-  }]);
 ;angular.module('app.controller.main', ['app.service.auth'])
   .controller('MainController', ['$rootScope', '$scope', 'AuthService', 'UserService', 'SessionService', '$interval', '$location', '$window', function ($rootScope, $scope, AuthService, UserService, SessionService, $interval, $location, $window) {
 
@@ -48129,6 +48034,10 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
 
 
     $scope.logoutUser = function () {
+      if(sessionInterval) {
+        console.log('cancelling session interval');
+        $interval.cancel(sessionInterval);
+      }
       AuthService.logout();
       $location.path('/');
     }
@@ -48148,16 +48057,17 @@ app.run(['$rootScope', 'AuthService', '$location', function ($rootScope, AuthSer
               AuthService.logout();
             }
             console.log('Redirecting to home page ');
-$location.path('/');
+            $location.path('/');
           } else {
             console.log('Session is valid!');
           }
         }, CHECK_SESSION_INTERVAL);
+        return sessionInterval;
       }
     }
 
 
-    checkSession();
+    let sessionInterval = checkSession();
 
 
     $rootScope.$on('run:checkSession', function () {
@@ -48209,41 +48119,168 @@ $location.path('/');
       isSessionValid
     }
 }]);
-;angular.module('app.controller.registration', ['app.service.user'])
+;angular.module('app.directives.auth.login', [])
 
-  .controller('RegistrationController', ['$scope', '$location', '$timeout', 'UserService', function ($scope, $location, $timeout, UserService) {
+.directive('loginUser', ['$location', '$timeout', 'AuthService', function ($location, $timeout, AuthService) {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/auth/login-form.tpl.html',
+    scope: {},
+    controller: function($scope) {
 
+        console.log('login-user directive init');
 
-    console.log('Registration Controller Init');
+        // on controller load - clear form data
+        $scope.formData = {};
 
-    // on controller load - clear form data
-    $scope.formData = {};
+        /**
+         * Register new user
+         */
+        $scope.authenticateUser = function (formData) {
+          console.log('Authenticate user called', formData);
+          AuthService.login(formData)
+            .then(resp => {
+              $scope.formData.error = $scope.formData.success = false;
+              if (resp.data.success) {
+                // ON SUCCESS - display success mssg and redirect to home page
+                $scope.formData.success = resp.data.message + '. Redirecting Home...';
+                $scope.$emit('run:checkSession');
+                $timeout(() => $location.path('/'), 2000);
+              } else {
+                $scope.formData.error = resp.data.message;
+              }
+            })
+            .catch(err => {
+              $scope.formData.success = false;
+              $scope.formData.error = 'There was an error logging in';
+            });
+        }
 
-    /**
-     * Register new user
-     */
-    $scope.registerUser = function (formData) {
-      UserService.registerUser(formData)
-        .then(resp => {
-          console.log(resp);
-          $scope.formData.error = $scope.formData.success = false;
-          if (resp.data.success) {
-            // ON SUCCESS - display success mssg and redirect to home page
-            $scope.formData.success = resp.data.message;
-            $timeout(() => $location.path('/'), 2000);
-          } else {
-            $scope.formData.error = resp.data.message;
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          $scope.formData.success = false;
-          $scope.formData.error = 'There was an error registering your account';
-        });
     }
+  }
+}]);
+;angular.module('app.directives.menu.home', [])
+
+.directive('homeMenu', [function() {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/menu/home-menu.tpl.html',
+    scope: {},
+    controller: function() {
+        console.log('home menu directive init');
 
 
-  }]);
+
+    }
+  }
+}]);
+;angular.module('app.directives.user.edit', [])
+
+.directive('editUser', ['UserService', function(UserService) {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/user/profile-form.tpl.html',
+    scope: {},
+    controller: function($scope, $timeout, $location) {
+
+        console.log('edit-user directive init');
+
+        $scope.editingUser = true;
+
+        $scope.formData = {};
+
+        UserService.getSession()
+          .then(resp => {
+            if (resp.data.username) {
+              loadProfile(resp.data.username);
+            }
+          })
+          .catch(err => {
+            console.log('Unable to get session details', err);
+          });
+
+
+        function loadProfile(username) {
+          UserService.getMyProfile(username)
+            .then(resp => {
+              $scope.formData = $scope.userProfile = resp.data.data;
+            })
+            .catch(err => {
+              console.log('Unable to load profile', err);
+            });
+        }
+
+
+        $scope.submitForm = function (formData) {
+          $scope.formData.error = $scope.formData.success = false;
+          $scope.disableSubmit = true;
+          if (!$scope.formData.name || !$scope.formData.email || !$scope.formData.username) {
+            return $scope.formData.error = 'Do not leave any fields blank'
+          } else {
+            UserService.updateProfile($scope.formData)
+              .then(resp => {
+                if (resp.data.success) {
+                  $scope.formData.success = resp.data.message + '. Redirecting home...';
+                  $timeout(() => $location.path('/'), 2000);
+                } else {
+                  $scope.formData.error = resp.data.message;
+                }
+              }).catch(err => {
+                console.log('Unknown error:', err);
+                $scope.formData.error = 'Unknown error, unable to update profile';
+              }).finally(() => {
+                $scope.disableSubmit = false
+              });
+          }
+        }
+
+        $scope.togglePassword = function() {
+          $scope.editingPassword = true;
+        }
+
+    }
+  }
+}]);
+;angular.module('app.directives.user.register', [])
+
+.directive('registerUser', ['$location', '$timeout', 'UserService', function ($location, $timeout, UserService) {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/user/profile-form.tpl.html',
+    //scope: {},
+    controller: function($scope) {
+        console.log('register-user directive init');
+
+        $scope.registeringUser = true;
+
+        // on controller load - clear form data
+        $scope.formData = {};
+
+        /**
+         * Register new user
+         */
+        $scope.submitForm = function (formData) {
+          UserService.registerUser(formData)
+            .then(resp => {
+              $scope.formData.error = $scope.formData.success = false;
+              if (resp.data.success) {
+                // ON SUCCESS - display success mssg and redirect to home page
+                $scope.formData.success = resp.data.message;
+                $timeout(() => $location.path('/'), 2000);
+              } else {
+                $scope.formData.error = resp.data.message;
+              }
+            })
+            .catch(err => {
+              $scope.formData.success = false;
+              $scope.formData.error = 'There was an error registering your account';
+            });
+        }
+
+
+    }
+  }
+}]);
 ;angular.module('app.service.auth', [])
 
   /**
