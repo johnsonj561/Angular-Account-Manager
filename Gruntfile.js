@@ -3,6 +3,7 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+
     // Tasks
     // Compile all sass files in styles/sass
     // Write css output to styles/css
@@ -24,6 +25,11 @@ module.exports = function (grunt) {
           'public/dist/main.min.css': ['public/styles/css/bootstrap.css', 'public/dist/temp/css/*css']
         }
       }
+    },
+    // Check JS for errors
+    // See ./.eslintrc for linting options
+    eslint: {
+      target: ['public/app/**/*.js']
     },
     // Concat all js into single file
     // Be sure to order dependencies appropriately
@@ -107,10 +113,10 @@ module.exports = function (grunt) {
   // watch service will re-build javascript and css on file change
   grunt.registerTask('default', ['watch']);
   // grunt build-css compiles sass then concats all css to public/dist/main.min.css
-  grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin']);
+  grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin', 'clean:css']);
   // grunt build-js concats all js, babelizes, uglifies, and writes result to public/dist/main.min.js
   // Note - uglification currently disabled, need to find workaround to prevent uglify from breaking angular
-  grunt.registerTask('build-js', ['concat', 'babel', 'uglify']);
+  grunt.registerTask('build-js', ['clean:js', 'eslint', 'concat', 'babel', 'uglify', 'clean:js']);
   // grunt build-all combines build-css and build-js
-  grunt.registerTask('build-all', ['clean:all', 'build-css', 'build-js']);
+  grunt.registerTask('build-all', ['build-css', 'build-js']);
 };

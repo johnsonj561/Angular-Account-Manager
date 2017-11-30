@@ -1,0 +1,13 @@
+{
+  'globals': {
+    'jQuery': true,
+    '$': true
+  },
+  'parser': 'babel-eslint',
+  'parserOptions': {
+    'codeFrame': false
+  },
+  'rules': {
+    'strict': 0,
+  }
+}
