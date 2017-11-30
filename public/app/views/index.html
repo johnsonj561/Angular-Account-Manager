@@ -12,6 +12,7 @@
   <link href="dist/main.min.css" rel="stylesheet">
   <!-- Concated javascript files -->
   <script src="dist/main.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 </head>
 
 <body ng-app="nlApp" ng-controller="MainController">
@@ -28,19 +29,27 @@
           </button>
         <a class="navbar-brand" href="/">Account Manager</a>
       </div>
-      <div id="navbar" class="navbar-collapse collapse">
+      <!-- Collapsible Menu -->
+      <div ng-if="!activeUsername" id="navbar" class="navbar-collapse collapse" style="float:right">
         <ul class="nav navbar-nav pull-right">
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu<span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><a href="/register">Register</a></li>
               <li><a href="/login">Login</a></li>
-              <li ng-click="logoutUser()"><a>Logout</a></li>
             </ul>
           </li>
         </ul>
       </div>
-      <!--/.nav-collapse -->
+      <div ng-if="activeUsername" class="logout-container">
+        <span ng-click="logoutUser()" uib-tooltip="Logout" tooltip-placement="left">
+          <a><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+        </span>
+      </div>
+      <!-- Signed In Indicator -->
+      <div ng-if="activeUsername" class="signed-in-container" style="display:inline;float:right">
+        <p class="navbar-text">Signed in as <span ng-bind="activeUsername"></span></p>
+      </div>
     </div>
   </nav>
 
@@ -60,7 +69,13 @@
   </div>
 
 
+  <script>
+    $(document).ready(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
 
+  </script>
 </body>
+
 
 </html>

@@ -44,6 +44,7 @@ module.exports = function (grunt) {
 					 'public/js/jquery/*js',
            'public/js/angular/angular.js',
            'public/js/angular/angular-route.js',
+           'public/js/angular/ui-bootstrap-tpls-2.5.0.js',
            'public/js/bootstrap/bootstrap.js',
 					 'public/app/**/*js'
 				 ],
@@ -113,10 +114,10 @@ module.exports = function (grunt) {
   // watch service will re-build javascript and css on file change
   grunt.registerTask('default', ['watch']);
   // grunt build-css compiles sass then concats all css to public/dist/main.min.css
-  grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin', 'clean:css']);
+  grunt.registerTask('build-css', ['clean:css', 'sass', 'cssmin']);
   // grunt build-js concats all js, babelizes, uglifies, and writes result to public/dist/main.min.js
   // Note - uglification currently disabled, need to find workaround to prevent uglify from breaking angular
-  grunt.registerTask('build-js', ['clean:js', 'eslint', 'concat', 'babel', 'uglify', 'clean:js']);
+  grunt.registerTask('build-js', ['clean:js', 'eslint', 'concat', 'babel', 'uglify']);
   // grunt build-all combines build-css and build-js
   grunt.registerTask('build-all', ['build-css', 'build-js']);
 };

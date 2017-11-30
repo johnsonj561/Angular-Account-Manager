@@ -8,33 +8,44 @@ angular.module('app.controller.main', ['app.service.auth'])
     // check session every 30 seconds
     const CHECK_SESSION_INTERVAL = 1000 * 10;
 
-
+    let sessionInterval = false;
+    
+    
     $scope.logoutUser = function () {
       AuthService.logout();
+      $scope.activeUsername = false;
+      if(sessionInterval) {
+        $interval.cancel(sessionInterval);
+      }
       $location.path('/');
     }
 
-
+    
     function checkSession() {
-      let activeSession = SessionService.isSessionValid();
-      console.log('isSessionValid() = ', activeSession);
-      if (activeSession) {
-        let sessionInterval = $interval(() => {
-          console.log('Running sessionInterval');
-          activeSession = SessionService.isSessionValid();
-          if (!activeSession) {
-            console.log('Session is no longer active');
-            $interval.cancel(sessionInterval);
-            if (AuthService.isLoggedIn()) {
-              AuthService.logout();
+      SessionService.getSession()
+        .then(resp => {
+          if (!resp.data.username) return;
+          $scope.activeUsername = resp.data.username;
+          sessionInterval = $interval(() => {
+            console.log('Running sessionInterval');
+            if (!SessionService.isSessionValid()) {
+              console.log('Session is no longer active');
+              $interval.cancel(sessionInterval);
+              if (AuthService.isLoggedIn()) {
+                AuthService.logout();
+              }
+              $scope.activeUsername = false;
+              console.log('Redirecting to home page ');
+              $location.path('/');
+            } else {
+              console.log('Session is valid!');
             }
-            console.log('Redirecting to home page ');
-            $location.path('/');
-          } else {
-            console.log('Session is valid!');
-          }
-        }, CHECK_SESSION_INTERVAL);
-      }
+          }, CHECK_SESSION_INTERVAL);
+        })
+        .catch(err => {
+          console.log('Error checking for active session: ', err);
+          $scope.activeUsername = false;
+        })
     }
 
     checkSession();
@@ -45,7 +56,7 @@ angular.module('app.controller.main', ['app.service.auth'])
 
   }])
 
-  .service('SessionService', ['AuthService', '$window', function (AuthService, $window) {
+  .service('SessionService', ['AuthService', '$window', '$http', function (AuthService, $window, $http) {
 
     /**
      * Returns parsed jwt
@@ -84,7 +95,12 @@ angular.module('app.controller.main', ['app.service.auth'])
       }
     }
 
+    function getSession() {
+      return $http.get('/api/session');
+    }
+
     return {
-      isSessionValid
+      isSessionValid,
+      getSession
     }
 }]);

@@ -1,6 +1,6 @@
 <div class="row home-panel-container">
 
-  <div class="col-sm-6">
+  <div ng-if="!activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h3 class="panel-title">New Users</h3>
@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div class="col-sm-6">
+  <div ng-if="!activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h3 class="panel-title">Returning Users</h3>
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <div class="col-sm-6">
+  <div ng-if="activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h3 class="panel-title">Edit Profile</h3>

@@ -1,5 +1,15 @@
 nav.navbar {
   border-bottom: 2px solid #fff;
+  
+  .logout-container {
+    float: right;
+    font-size: 2em;
+    span {
+      width: 50px;
+      line-height: 50px;
+      cursor: pointer;
+    }
+  }
 }
 
 .form-container {

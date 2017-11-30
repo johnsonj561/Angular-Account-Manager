@@ -1,4 +1,4 @@
-var app = angular.module('nlApp', ['ngRoute', 'app.controller.main', 'app.service.auth', 'app.service.user',
+var app = angular.module('nlApp', ['ngRoute', 'ui.bootstrap', 'app.controller.main', 'app.service.auth', 'app.service.user',
   'app.directives.auth.login', 'app.directives.menu.home', 'app.directives.user.edit', 'app.directives.user.register']);
 
 /**
