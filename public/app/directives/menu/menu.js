@@ -1,4 +1,4 @@
-angular.module('app.directives.menu.home', [])
+angular.module('app.directives.menu', [])
 
   .directive('homeMenu', [function () {
     return {

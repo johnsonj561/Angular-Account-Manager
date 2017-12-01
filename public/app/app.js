@@ -1,5 +1,5 @@
 var app = angular.module('nlApp', ['ngRoute', 'ui.bootstrap', 'app.controller.main', 'app.service.auth', 'app.service.user',
-  'app.directives.auth.login', 'app.directives.menu.home', 'app.directives.user.edit', 'app.directives.user.register']);
+  'app.directives.auth', 'app.directives.menu', 'app.directives.users', 'app.directives.accounts']);
 
 /**
  * Configure front end routes
@@ -29,6 +29,11 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
     // un-authenticated users should not be able to view edit profile page
     .when('/edit-profile', {
       templateUrl: 'app/views/pages/edit-user.html',
+      authenticated: true
+    })
+  
+    .when('/add-account', {
+      templateUr: 'app/views/pages/add-account.html',
       authenticated: true
     })
 

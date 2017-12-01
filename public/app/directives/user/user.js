@@ -1,4 +1,44 @@
-angular.module('app.directives.user.edit', [])
+angular.module('app.directives.users', [])
+
+.directive('registerUser', ['$location', '$timeout', 'UserService', function ($location, $timeout, UserService) {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/user/profile-form.tpl.html',
+    //scope: {},
+    controller: function($scope) {
+        console.log('register-user directive init');
+
+        $scope.registeringUser = true;
+
+        // on controller load - clear form data
+        $scope.formData = {};
+
+        /**
+         * Register new user
+         */
+        $scope.submitForm = function (formData) {
+          UserService.registerUser(formData)
+            .then(resp => {
+              $scope.formData.error = $scope.formData.success = false;
+              if (resp.data.success) {
+                // ON SUCCESS - display success mssg and redirect to home page
+                $scope.formData.success = resp.data.message;
+                $timeout(() => $location.path('/'), 2000);
+              } else {
+                $scope.formData.error = resp.data.message;
+              }
+            })
+            .catch(err => {
+              $scope.formData.success = false;
+              $scope.formData.error = 'There was an error registering your account';
+            });
+        }
+
+
+    }
+  }
+}])
+
 
 .directive('editUser', ['UserService', function(UserService) {
   return {
@@ -37,10 +77,11 @@ angular.module('app.directives.user.edit', [])
 
         $scope.submitForm = function (formData) {
           $scope.formData.error = $scope.formData.success = false;
-          $scope.disableSubmit = true;
-          if (!$scope.formData.name || !$scope.formData.email || !$scope.formData.username) {
-            return $scope.formData.error = 'Do not leave any fields blank'
+          if (!$scope.formData.name || !$scope.formData.email || !$scope.formData.username || 
+            ($scope.editingPassword && (!$scope.formData.password || !$scope.formData.passwordConfirmation))) {
+              return $scope.formData.error = 'Do not leave any fields blank'
           } else {
+            $scope.disableSubmit = true;
             UserService.updateProfile($scope.formData)
               .then(resp => {
                 if (resp.data.success) {
@@ -65,3 +106,4 @@ angular.module('app.directives.user.edit', [])
     }
   }
 }]);
+

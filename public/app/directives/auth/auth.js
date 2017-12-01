@@ -1,4 +1,4 @@
-angular.module('app.directives.auth.login', [])
+angular.module('app.directives.auth', [])
 
 .directive('loginUser', ['$location', '$timeout', 'AuthService', function ($location, $timeout, AuthService) {
   return {
