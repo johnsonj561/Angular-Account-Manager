@@ -5,11 +5,11 @@ var Schema = mongoose.Schema;
  * Training Module Schema
  */
 var AccountSchema = new Schema({
-  account_name: {
+  account: {
     type: String,
     required: true
   },
-  contact_name: {
+  contact: {
     type: String,
     required: true
   },
@@ -21,16 +21,12 @@ var AccountSchema = new Schema({
     type: String,
     required: true
   },
-  primary_phone: {
+  telephone: {
     type: String
   },
-  seconday_phone: {
-    type: String
-  },
-  primary_fax: {
+  email: {
     type: String
   }
 });
-
 
 module.exports = mongoose.model('Accounts', AccountSchema);

@@ -1,5 +1,6 @@
 <div class="row home-panel-container">
 
+  <!-- Registration -->
   <div ng-if="!activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -12,6 +13,7 @@
     </div>
   </div>
 
+  <!-- Login -->
   <div ng-if="!activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -24,6 +26,7 @@
     </div>
   </div>
 
+  <!-- Edit Profile -->
   <div ng-if="activeUsername" class="col-sm-6">
     <div class="panel panel-primary">
       <div class="panel-heading">
@@ -32,6 +35,19 @@
       <div class="panel-body">
         Make changes to your personal profile
         <a class="btn btn-sm btn-primary pull-right" href="/edit-profile">Profile</a>
+      </div>
+    </div>
+  </div>  
+  
+  <!-- Add Accounts -->
+  <div ng-if="activeUsername" class="col-sm-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Add New Account</h3>
+      </div>
+      <div class="panel-body">
+        Create a new account profile
+        <a class="btn btn-sm btn-primary pull-right" href="/add-account"><i class="fa fa-plus"></i> Account</a>
       </div>
     </div>
   </div>

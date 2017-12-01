@@ -1,1 +1,48 @@
-<h1>Hello Accounts</h1>
+<form class="form-container">
+  
+  <h2>Create New Account</h2>
+
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Account Name</span>
+    <input type="text" class="form-control" ng-model="formData.account">
+  </div>
+
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Primary Contact</span>
+    <input type="text" class="form-control" ng-model="formData.contact">
+  </div>  
+  
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">City</span>
+    <input type="text" class="form-control" ng-model="formData.city">
+  </div>  
+  
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">State</span>
+    <input type="text" class="form-control" ng-model="formData.state">
+  </div>  
+  
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Telephone</span>
+    <input type="tel" class="form-control" ng-model="formData.telephone">
+  </div>  
+  
+  <div class="input-group input-group-sm">
+    <span class="input-group-addon">Email</span>
+    <input type="email" class="form-control" ng-model="formData.email">
+  </div>
+
+  <!-- Form Buttons -->
+  <div class="form-btn-container text-center">
+    <button class="btn btn-primary btn-sm" ng-click="submitForm(formData)" ng-disabled="disableSubmit">Submit</button>
+    <a href="/"><button class="btn btn-primary btn-sm">Cancel</button></a>
+  </div>
+
+</form>
+
+
+<!-- User Feedback -->
+<div class="alert-container">
+  <div class="alert alert-success text-center" ng-if="formData.success" ng-bind="formData.success"></div>
+  <div class="alert alert-danger text-center" ng-if="formData.error" ng-bind="formData.error"></div>
+</div>

@@ -227,59 +227,7 @@ router.post('/checkemail', function (req, res) {
 });
 
 
-/*
- * Save new account in database
- */
-router.post('/account', function (req, res) {
-  console.log('\n\npost/account/ ', req.body);
-  var account = new AccountModel();
-  account.account_name = req.body.account_name;
-  account.contact_name = req.body.contact_name;
-  account.primary_phone = req.body.primary_phone;
-  account.seconday_phone = req.body.seconday_phone || '';
-  account.primary_fax = req.body.primary_fax || '';
-  account.state = req.body.state || '';
-  account.city = req.body.city || '';
 
-  if (!account.account_name || !account.contact_name || !account.primary_phone) {
-    res.json({
-      success: false,
-      message: 'Account name, contact name, and primary phone number must be included.'
-    });
-  } else {
-    account.save()
-      .then(resp => {
-        res.json({
-          success: true,
-          message: 'New account ' + account.account_name + ' saved successfully'
-        });
-      }).catch(err => {
-        res.json({
-          success: false,
-          message: 'There was an error saving new account ' + account.account_name,
-          error: err
-        });
-      });
-  }
-});
-
-/**
- * Get all account details
- */
-router.get('/account', function (req, res) {
-  AccountModel.find({})
-    .then(resp => {
-      res.json({
-        success: true,
-        data: resp
-      });
-    }).catch(err => {
-      res.json({
-        success: false,
-        error: err
-      });
-    });
-});
 
 
 /*
@@ -321,7 +269,7 @@ router.get('/session', function (req, res) {
 /**
  * Update User Profile
  */
-router.post('/updateprofile', function (req, res) {
+router.put('/profile', function (req, res) {
   const username = req.decoded.username;
   // Look for user that needs to be editted
   User.findOne({
@@ -407,6 +355,65 @@ router.get('/profile', function (req, res) {
       message: 'No username found'
     });
   }
+});
+
+//      account
+//      contact
+//      city
+//      state
+//      telephone
+//      email
+/*
+ * Save new account in database
+ */
+router.post('/account', function (req, res) {
+  console.log('\n\npost/account/ ', req.body);
+  var account = new AccountModel();
+  account.account = req.body.account;
+  account.contact = req.body.contact;
+  account.city = req.body.city;
+  account.state = req.body.state;
+  account.telephone = req.body.telephone;
+  account.email = req.body.email;
+  
+  if (!account.account || !account.contact || !account.telephone) {
+    res.json({
+      success: false,
+      message: 'Account name, contact name, and telephone number are required'
+    });
+  } else {
+    account.save()
+      .then(resp => {
+        res.json({
+          success: true,
+          message: 'New account "' + account.account + '" saved successfully'
+        });
+      }).catch(err => {
+        res.json({
+          success: false,
+          message: 'There was an error saving new account "' + account.account_name + '"',
+          error: err
+        });
+      });
+  }
+});
+
+/**
+ * Get all account details
+ */
+router.get('/account', function (req, res) {
+  AccountModel.find({})
+    .then(resp => {
+      res.json({
+        success: true,
+        data: resp
+      });
+    }).catch(err => {
+      res.json({
+        success: false,
+        error: err
+      });
+    });
 });
 
 

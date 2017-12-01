@@ -1,5 +1,6 @@
-var app = angular.module('nlApp', ['ngRoute', 'ui.bootstrap', 'app.controller.main', 'app.service.auth', 'app.service.user',
-  'app.directives.auth', 'app.directives.menu', 'app.directives.users', 'app.directives.accounts']);
+var app = angular.module('nlApp', ['ngRoute', 'ui.bootstrap', 'app.controller.main', 'app.service.auth', 'app.service.user', 
+                                   'app.service.accounts', 'app.directives.auth', 'app.directives.menu', 'app.directives.users',
+                                   'app.directives.accounts']);
 
 /**
  * Configure front end routes
@@ -33,7 +34,7 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
     })
   
     .when('/add-account', {
-      templateUr: 'app/views/pages/add-account.html',
+      templateUrl: 'app/views/pages/add-account.html',
       authenticated: true
     })
 

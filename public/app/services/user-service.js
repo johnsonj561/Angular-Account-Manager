@@ -15,7 +15,7 @@ angular.module('app.service.user', [])
     }
 
     function updateProfile(formData) {
-      return $http.post('/api/updateprofile', formData);
+      return $http.put('/api/profile', formData);
     }
 
     return {
