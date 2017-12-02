@@ -37,6 +37,11 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
       templateUrl: 'app/views/pages/add-account.html',
       authenticated: true
     })
+  
+    .when('/view-accounts', {
+      templateUrl: 'app/views/pages/view-accounts.html',
+      authenticated: true
+    })
 
     // "catch all" to redirect to home page
     .otherwise({

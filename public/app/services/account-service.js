@@ -6,8 +6,13 @@ angular.module('app.service.accounts', [])
       return $http.post('/api/account', formData);
     }
 
+    function getAccounts() {
+      return $http.get('/api/account');
+    }
+    
     return {
-      addAccount
+      addAccount,
+      getAccounts
     }
 
   }]);

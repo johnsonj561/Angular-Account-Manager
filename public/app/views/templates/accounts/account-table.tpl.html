@@ -1,0 +1,27 @@
+<h2>Accounts</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Account</th>
+      <th>Contact</th>
+      <th class="desktop-only">City</th>
+      <th class="desktop-only">State</th>
+      <th>Email</th>
+      <th class="desktop-only">Telephone</th>
+      <th></th>
+      <th class="desktop-only"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="account in accountList">
+      <td ng-bind="account.account"></td>
+      <td ng-bind="account.contact"></td>
+      <td ng-bind="account.city" class="desktop-only"></td>
+      <td ng-bind="account.state" class="desktop-only"></td>
+      <td ng-bind="account.email"></td>
+      <td ng-bind="account.telephone" class="desktop-only"></td>
+      <td>Edit</td>
+      <td class="desktop-only">Delete</td>
+    </tr>
+  </tbody>
+</table>

@@ -33,3 +33,22 @@ angular.module('app.directives.accounts', [])
   
 }])
 
+.directive('accountsTable', ['AccountService', function(AccountService) {
+  return {
+    restrict: 'A',
+    templateUrl: 'app/views/templates/accounts/account-table.tpl.html',
+    scope: {},
+    controller: function($scope, $timeout, $location) {
+      
+      console.log('accounts table directive init');
+      
+      AccountService.getAccounts()
+        .then(resp => {
+          $scope.accountList = resp.data.data;
+          console.log('setting account list: ', $scope.accountList);
+        }).catch(err => console.log('Account Error: ', err));
+      
+    }
+  }
+  
+}]);
