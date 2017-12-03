@@ -1,6 +1,6 @@
 angular.module('app.directives.accounts', [])
 
-.directive('addAccount', ['AccountService', function(AccountService) {
+.directive('addAccount', ['AccountService', 'MainSpinner', function(AccountService, MainSpinner) {
   
   return {
     restrict: 'A',
@@ -12,6 +12,7 @@ angular.module('app.directives.accounts', [])
       $scope.formData = {};
       
       $scope.submitForm = function(formData) {
+        MainSpinner.toggleSpinner(true, 'Processing form');
         $scope.formData.error = $scope.formData.success = false;
         $scope.disableSubmit = true;
         AccountService.addAccount(formData)
@@ -24,7 +25,10 @@ angular.module('app.directives.accounts', [])
             }
           })
           .catch(err => $scope.formData.error = 'Unable to process request' +err)
-          .finally(() => $scope.disableSubmit = false);
+          .finally(() => {
+            $scope.disableSubmit = false
+            MainSpinner.toggleSpinner(false);
+          });
       }
 
     }
@@ -33,7 +37,7 @@ angular.module('app.directives.accounts', [])
   
 }])
 
-.directive('accountsTable', ['AccountService', function(AccountService) {
+.directive('accountsTable', ['AccountService', 'MainSpinner', function(AccountService, MainSpinner) {
   return {
     restrict: 'A',
     templateUrl: 'app/views/templates/accounts/account-table.tpl.html',
@@ -42,13 +46,13 @@ angular.module('app.directives.accounts', [])
       
       console.log('accounts table directive init');
       
+      // load account info
+      MainSpinner.toggleSpinner(true, 'Loading accounts');
       AccountService.getAccounts()
-        .then(resp => {
-          $scope.accountList = resp.data.data;
-          console.log('setting account list: ', $scope.accountList);
-        }).catch(err => console.log('Account Error: ', err));
+        .then(resp => $scope.accountList = resp.data.data)
+        .catch(err => console.log('Account Error: ', err))
+        .finally(() => MainSpinner.toggleSpinner(false));
       
     }
   }
-  
 }]);

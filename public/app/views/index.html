@@ -21,14 +21,6 @@
   <nav class="navbar navbar-default navbar-static-top">
     <div class="container">
       <div class="navbar-header">
-<!--
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
--->
         <a class="navbar-brand" href="/">Account Manager</a>
       </div>
       <!-- Collapsible Menu -->
@@ -60,17 +52,24 @@
 
     <!-- angular view -->
     <div ng-view></div>
+    
+    <!-- page loading display -->
+    <div class="loading-spinner" ng-if="spinnerObject.loading" loading-spinner spinner-text="{{spinnerObject.spinnerText}}"></div>
 
   </div>
   <!-- /.container -->
+  
+
 
   <!-- User Feedback -->
   <div class="alert-container">
     <div class="alert alert-success text-center" ng-if="global.successMessage" ng-bind="global.successMessage"></div>
     <div class="alert alert-danger text-center" ng-if="global.errorMessage" ng-bind="global.errorMessage"></div>
   </div>
-
-
+  
+  <!-- Prompt Modal -->
+  <div prompt-modal></div>
+  
   <script>
     $(document).ready(function() {
       $('[data-toggle="tooltip"]').tooltip();

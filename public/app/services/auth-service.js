@@ -80,4 +80,53 @@ angular.module('app.service.auth', [])
     return {
       request
     }
-  }]);
+  }])
+
+  .service('SessionService', ['AuthService', '$window', '$http', function (AuthService, $window, $http) {
+
+    /**
+     * Returns parsed jwt
+     */
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace('.', '+').replace('_', '/');
+      return JSON.parse($window.atob(base64));
+    }
+
+
+    /**
+     * Returns true if user is logged in and session is valid
+     */
+    function isSessionValid() {
+      console.log('SessionService.isSessionValid');
+      if (AuthService.isLoggedIn()) {
+        console.log('AuthService.isLoggedIn');
+        //        checkingSession = true;
+        // get session token from browser storage then parse token
+        var token = $window.localStorage.getItem('token');
+        if (token === null) {
+          console.log('token === null, cancelling interval');
+          return false;
+          //          $interval.cancel(interval);
+        } else {
+          console.log('token not null, parsing jwt');
+          const expireTime = parseJwt(token);
+          const timeStamp = Math.floor(Date.now() / 1000);
+          const timeLeft = expireTime.exp - timeStamp;
+          if (timeLeft <= 0) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+
+    function getSession() {
+      return $http.get('/api/session');
+    }
+
+    return {
+      isSessionValid,
+      getSession
+    }
+}]);

@@ -24,6 +24,16 @@ nav.navbar {
   }
 }
 
+.loading-spinner {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  opacity: 0.9;
+}
+
 .form-container {
   width: 90%;
   max-width: 400px;
@@ -64,3 +74,5 @@ nav.navbar {
     }
   }
 }
+
+

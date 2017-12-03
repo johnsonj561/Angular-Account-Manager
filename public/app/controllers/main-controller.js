@@ -1,5 +1,5 @@
 angular.module('app.controller.main', ['app.service.auth'])
-  .controller('MainController', ['$rootScope', '$scope', 'AuthService', 'UserService', 'SessionService', '$interval', '$location', '$window', function ($rootScope, $scope, AuthService, UserService, SessionService, $interval, $location, $window) {
+  .controller('MainController', ['$rootScope', '$scope', 'AuthService', 'UserService', 'SessionService', '$interval', '$location', '$window', '$timeout', 'MainSpinner', function ($rootScope, $scope, AuthService, UserService, SessionService, $interval, $location, $window, $timeout, MainSpinner) {
 
     console.log('Main controller init');
 
@@ -10,6 +10,8 @@ angular.module('app.controller.main', ['app.service.auth'])
 
     let sessionInterval = false;
     
+    init();
+    
     
     $scope.logoutUser = function () {
       AuthService.logout();
@@ -19,7 +21,7 @@ angular.module('app.controller.main', ['app.service.auth'])
       }
       $location.path('/');
     }
-
+    
     
     function checkSession() {
       SessionService.getSession()
@@ -48,59 +50,27 @@ angular.module('app.controller.main', ['app.service.auth'])
         })
     }
 
-    checkSession();
-
+    /**
+    * MainController init
+    */
+    function init() {
+      // check for valid session
+      checkSession();
+      // bind scope's loading variables to MainSpinner service,
+      // to allow other controller's to trigger MainController loading
+      $scope.spinnerObject = {
+        loading: false,
+        spinnerText: ''
+      };
+      MainSpinner.initSpinner($scope.spinnerObject);
+    }
+    
+    
+    // listen for checkSession requests from other controllers
     $rootScope.$on('run:checkSession', function () {
       checkSession();
     });
 
-  }])
-
-  .service('SessionService', ['AuthService', '$window', '$http', function (AuthService, $window, $http) {
-
-    /**
-     * Returns parsed jwt
-     */
-    function parseJwt(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace('.', '+').replace('_', '/');
-      return JSON.parse($window.atob(base64));
-    }
+  }]);
 
 
-    /**
-     * Returns true if user is logged in and session is valid
-     */
-    function isSessionValid() {
-      console.log('SessionService.isSessionValid');
-      if (AuthService.isLoggedIn()) {
-        console.log('AuthService.isLoggedIn');
-        //        checkingSession = true;
-        // get session token from browser storage then parse token
-        var token = $window.localStorage.getItem('token');
-        if (token === null) {
-          console.log('token === null, cancelling interval');
-          return false;
-          //          $interval.cancel(interval);
-        } else {
-          console.log('token not null, parsing jwt');
-          const expireTime = parseJwt(token);
-          const timeStamp = Math.floor(Date.now() / 1000);
-          const timeLeft = expireTime.exp - timeStamp;
-          if (timeLeft <= 0) {
-            return false;
-          }
-        }
-        return true;
-      }
-    }
-
-    function getSession() {
-      return $http.get('/api/session');
-    }
-
-    return {
-      isSessionValid,
-      getSession
-    }
-}]);

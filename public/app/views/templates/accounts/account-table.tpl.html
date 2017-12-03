@@ -3,10 +3,10 @@
   <thead>
     <tr>
       <th>Account</th>
-      <th>Contact</th>
-      <th class="desktop-only">City</th>
-      <th class="desktop-only">State</th>
-      <th>Email</th>
+      <th class="desktop-only">Contact</th>
+      <th>City</th>
+      <th>State</th>
+      <th class="desktop-only">Email</th>
       <th class="desktop-only">Telephone</th>
       <th></th>
       <th class="desktop-only"></th>
@@ -15,13 +15,13 @@
   <tbody>
     <tr ng-repeat="account in accountList">
       <td ng-bind="account.account"></td>
-      <td ng-bind="account.contact"></td>
-      <td ng-bind="account.city" class="desktop-only"></td>
-      <td ng-bind="account.state" class="desktop-only"></td>
-      <td ng-bind="account.email"></td>
-      <td ng-bind="account.telephone" class="desktop-only"></td>
-      <td>Edit</td>
-      <td class="desktop-only">Delete</td>
+      <td ng-bind="account.contact" class="desktop-only"></td>
+      <td ng-bind="account.city"></td>
+      <td ng-bind="account.state"></td>
+      <td ng-bind="account.email" class="desktop-only"></td>
+      <td ng-bind="account.telephone" class="desktop-only"d></td>
+      <td><i class="fa fa-pencil" aria-hidden="true"></i></td>
+      <td class="desktop-only"><i class="fa fa-trash-o" aria-hidden="true"></i></td>
     </tr>
   </tbody>
 </table>

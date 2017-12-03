@@ -1,6 +1,6 @@
 var app = angular.module('nlApp', ['ngRoute', 'ui.bootstrap', 'app.controller.main', 'app.service.auth', 'app.service.user', 
                                    'app.service.accounts', 'app.directives.auth', 'app.directives.menu', 'app.directives.users',
-                                   'app.directives.accounts']);
+                                   'app.directives.accounts', 'app.directives.loading', 'app.services.spinner']);
 
 /**
  * Configure front end routes
